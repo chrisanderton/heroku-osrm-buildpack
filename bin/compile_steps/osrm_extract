@@ -1,0 +1,4 @@
+cd $BUILD_DIR/
+
+topic "Extracting OSRM data"
+$BUILD_DIR/osrm-extract $BUILD_DIR/data.pbf | indent

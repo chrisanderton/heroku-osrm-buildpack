@@ -1,0 +1,36 @@
+cd $BUILD_DIR/
+set +e
+
+if [ ! -z $OSRM_DATA_PBF_FILE_URL ]; then
+  topic "Downloading PBF file"
+  curl -s -L -o $BUILD_DIR/data.pbf $OSRM_DATA_PBF_FILE_URL
+fi
+
+if [ ! -z $OSRM_DATA_BASE_URL ]; then
+  topic "Downloading base OSRM file using Base URL"
+  curl -s -L -f -o $BUILD_DIR/data.osrm $OSRM_DATA_BASE_URL
+  
+  if [ $? -ne 0 ]; then
+    echo "Not found (if using prepared data this is OK!)" | indent
+  fi
+
+  topic "Downloading extract files using Base URL"
+  for suffix in .names .restrictions .timestamp; do
+    curl -s -L -f -o $BUILD_DIR/data.osrm$suffix $OSRM_DATA_BASE_URL$suffix
+    
+    if [ $? -eq 0 ]; then
+      echo "Downloaded $OSRM_DATA_BASE_URL$suffix" | indent
+    fi
+  done
+
+  topic "Downloading prepared files using Base URL"
+  for suffix in .core .edges .fileIndex .geometry .hsgr .nodes .ramIndex; do
+    curl -s -L -f -o $BUILD_DIR/data.osrm$suffix $OSRM_DATA_BASE_URL$suffix
+    
+    if [ $? -eq 0 ]; then
+      echo "Downloaded $OSRM_DATA_BASE_URL$suffix" | indent
+    fi
+  done
+fi
+
+set -e

@@ -1,0 +1,4 @@
+cd $BUILD_DIR/
+
+topic "Preparing OSRM data"
+$BUILD_DIR/osrm-prepare -p $BUILD_DIR/profile.lua $BUILD_DIR/data.osrm | indent

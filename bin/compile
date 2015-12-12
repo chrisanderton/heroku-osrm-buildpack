@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir>
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+# parse and derive params
+BUILD_DIR=$1
+CACHE_DIR=$2
+LP_DIR=`cd $(dirname $0); cd ..; pwd`
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+ROOT_DIR=$(dirname $BIN_DIR)
+ENV_DIR=$3
+
+function error() {
+  echo " !     $*" >&2
+  exit 1
+}
+
+function topic() {
+  echo "-----> $*"
+}
+
+function indent() {
+  c='s/^/       /'
+  case $(uname) in
+    Darwin) sed -l "$c";;
+    *)      sed -u "$c";;
+  esac
+}
+
+source $BIN_DIR/compile_steps/env
+
+export OSRM_VERSION=${OSRM_VERSION:-4.8.1}
+topic "Using OSRM version $OSRM_VERSION"
+
+source $BIN_DIR/compile_steps/apt
+
+if [ -f $CACHE_DIR/$OSRM_VERSION/osrm-extract ] && [ -f $CACHE_DIR/$OSRM_VERSION/osrm-prepare ] && [ -f $CACHE_DIR/$OSRM_VERSION/osrm-routed ]; then
+  topic "Using cached OSRM binaries"
+  cp $CACHE_DIR/$OSRM_VERSION/* $BUILD_DIR
+else
+  source $BIN_DIR/compile_steps/osrm_build
+fi
+
+if [ ! -f $1/data.pbf ] && [ ! -f $1/data.osrm.nodes ] && [ ! -f $1/data.osrm.core ] && [ -f $1/profile.lua ]; then
+  source $BIN_DIR/compile_steps/download
+fi
+
+if [ -f $1/data.pbf ] && [ -f $1/profile.lua ]; then
+  source $BIN_DIR/compile_steps/osrm_extract
+fi
+
+if [ -f $1/data.osrm ] && [ ! -f $1/data.osrm.core ] && [ -f $1/profile.lua ]; then
+  source $BIN_DIR/compile_steps/osrm_prepare
+fi
+
+source $BIN_DIR/compile_steps/osrm_clean
+
+if [ ! -f $BUILD_DIR/Procfile ]; then
+  topic "Define Procfile"
+  echo "web: /app/osrm-routed -p \$PORT /app/data.osrm" > $BUILD_DIR/Procfile
+fi

@@ -1,0 +1,13 @@
+whitelist_regex="^(OSRM_VERSION|OSRM_DATA_PBF_FILE_URL|OSRM_DATA_BASE_URL)$"
+
+topic "Setting up config variables"
+
+if [ -d "$ENV_DIR" ]; then
+  echo "Environment found" | indent
+  for e in $(ls $ENV_DIR); do    
+    if [[ $e =~ $whitelist_regex ]]; then
+      echo "$e" | indent
+      export "$e=$(cat $ENV_DIR/$e)"
+    fi
+  done
+fi

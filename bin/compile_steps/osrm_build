@@ -1,0 +1,20 @@
+topic "Building OSRM"
+
+mkdir -p $BUILD_DIR/src
+cd $BUILD_DIR/src
+
+curl -s -L https://github.com/Project-OSRM/osrm-backend/archive/v$OSRM_VERSION.tar.gz | tar --strip 1 -zx
+
+mkdir -p $BUILD_DIR/build
+cd $BUILD_DIR/build
+
+cmake $BUILD_DIR/src | indent
+make | indent
+
+topic "Copying OSRM binaries"
+cd $BUILD_DIR/
+cp $BUILD_DIR/build/osrm-* $BUILD_DIR
+
+topic "Caching OSRM binaries"
+mkdir -p $CACHE_DIR/$OSRM_VERSION
+cp -f $BUILD_DIR/build/osrm-* $CACHE_DIR/$OSRM_VERSION

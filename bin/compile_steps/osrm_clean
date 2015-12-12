@@ -1,0 +1,4 @@
+rm -fr $BUILD_DIR/src
+rm -fr $BUILD_DIR/build
+rm -f $BUILD_DIR/data.pbf
+rm -f $BUILD_DIR/data.osrm
