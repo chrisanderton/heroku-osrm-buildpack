@@ -10,6 +10,10 @@ The Buildpack will download and compile OSRM and depending on the data files pro
 
 Uses OSRM release 4.8.1 by default - this can be overridden by setting the `OSRM_VERSION` config variable.
 
+###Procfile
+
+The buildpack will create a default Procfile if none is present.
+
 ###Data Files
 
 There are a number of options for specifying the data files that will be used by `osrm-routed`.
