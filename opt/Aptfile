@@ -1,2 +1,3 @@
 cmake
 lua5.2
+libboost-all-dev
