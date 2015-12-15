@@ -2,3 +2,4 @@ cmake
 lua5.2
 libboost1.55-all-dev
 libtbb-dev
+libluabind-dev
